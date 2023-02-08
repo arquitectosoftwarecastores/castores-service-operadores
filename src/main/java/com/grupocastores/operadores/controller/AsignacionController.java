@@ -60,13 +60,13 @@ public class AsignacionController {
 	}
 	
 	@PostMapping(value = "/asignarOperadores")
-	public ResponseEntity<List<OperadoresSecundariosRequest>> asignarOperadores(@RequestBody List<OperadoresSecundariosRequest> operadoresSecundarios) throws Exception {
+	public ResponseEntity<List<OperadoresSecundariosRequest>> asignarOperadores(@RequestBody List<OperadoresSecundariosRequest> operadoresSecundarios) {
 		List<OperadoresSecundariosRequest> list = operadoresService.asignarOperadores(operadoresSecundarios);
 		return ResponseEntity.ok(list);
 	}
 	
 	@PutMapping(value = "/updateOperadores")
-	public ResponseEntity<List<OperadoresSecundariosRequest>> updateOperadores(@RequestBody List<OperadoresSecundariosRequest> operadoresSecundarios) throws Exception {
+	public ResponseEntity<List<OperadoresSecundariosRequest>> updateOperadores(@RequestBody List<OperadoresSecundariosRequest> operadoresSecundarios) {
 		List<OperadoresSecundariosRequest> list = operadoresService.updateOperadores(operadoresSecundarios);
 		return ResponseEntity.ok(list);
 	}
