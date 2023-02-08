@@ -21,11 +21,11 @@ import com.grupocastores.commons.inhouse.OperadoresSecundariosRequest;
 import com.grupocastores.commons.inhouse.OperadoresSecundariosUnidad;
 import com.grupocastores.commons.inhouse.Unidades;
 import com.grupocastores.commons.inhouse.UnidadOperadorRequest;
-import com.grupocastores.operadores.repository.CatalogoRepository;
+import com.grupocastores.operadores.repository.UtilitiesRepository;
 import com.grupocastores.operadores.repository.AsignacionRepository;
 
 /**
- * OperadoresServiceImpl: Servicio para la asignación de operadores.
+ * AsignacionServiceImpl: Servicio para la asignación de operadores.
  * 
  * @version 0.0.1
  * @author Cynthia Fuentes
@@ -38,7 +38,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	private AsignacionRepository operadoresRepository;
 	
 	@Autowired
-	private CatalogoRepository catalogoRepository;
+	private UtilitiesRepository utilitiesRepository;
 	
 	/**
 	 * getEsquemasPago: Obtiene los esquemas de pago del catálogo
@@ -54,7 +54,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 		
 		if(lista != null && !lista.isEmpty()) {
 			lista.stream().forEach(i -> {
-				String idUsuarioMod = (String) catalogoRepository.findPersonal("idusuario", "idpersonal", String.valueOf(i.getIdPersonalMod()));
+				String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf(i.getIdPersonalMod()));
 				i.setIdUsuarioMod(idUsuarioMod);
 			});
 		}
@@ -132,7 +132,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 		
 		if(lista != null ) {
 			lista.stream().forEach(i -> {
-				String idUsuarioMod = (String) catalogoRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)i[11]));
+				String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)i[11]));
 				
 				operadores.add(new OperadoresSecundariosRequest((int)i[12], (int)i[0], (int)i[1], (int)i[2], (String)i[13], (int)i[3], (String)i[4], (int)i[5], (int)i[6], 
 					((Time)i[7]).toLocalTime(), ((Time)i[8]).toLocalTime(), (short)1, ((Date)i[9]).toLocalDate(), ((Time)i[10]).toLocalTime(), idUsuarioMod));
@@ -159,7 +159,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 		List<EsquemasPago> esquemasPago = operadoresRepository.getEsquemasPago();
 		
 		if(operadoresSecundarios != null && !operadoresSecundarios.isEmpty()) {
-			int idPersonalMod  = (int) catalogoRepository.findPersonal("idpersonal", "idusuario", operadoresSecundarios.get(0).getIdUsuarioMod());
+			int idPersonalMod  = (int) utilitiesRepository.findPersonal("idpersonal", "idusuario", operadoresSecundarios.get(0).getIdUsuarioMod());
 
 			try {
 				// Dar de baja todos los operadores asignados a esa unidad
@@ -216,55 +216,6 @@ public class AsignacionServiceImpl implements IAsignacionService {
 		return operadoresSecundarios;
 		
 	}
-	/*@Override
-	public List<OperadoresSecundariosRequest> insertOperadores(List<OperadoresSecundariosRequest> operadoresSecundarios) {
-		
-		LocalDate today = LocalDate.now();
-		LocalTime now = LocalTime.now();
-		List<EsquemasPago> esquemasPago = operadoresRepository.getEsquemasPago();
-		
-		if(operadoresSecundarios != null && !operadoresSecundarios.isEmpty()) {
-			operadoresSecundarios.stream().forEach(i -> {
-				try {
-					// Validar esquema de pago
-					EsquemasPago ep = esquemasPago.stream().filter(x -> x.getIdEsquemaPago() == i.getIdEsquemaPago()).findFirst().orElse(null);
-					if(ep == null)
-						throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se encontró el esquema de pago");
-					
-					if(ep.getModificable() != 1)
-						throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "El esquema de pago seleccionado no es modificable");
-					
-					int idPersonalMod = (int) catalogoRepository.findPersonal("idpersonal", "idusuario", i.getIdUsuarioMod());
-					
-					// Dar de baja registros anteriores si el operador tiene unidades asignadas
-					if(i.getTipoOperador() == 2) {
-						List<Unidades> o = operadoresRepository.getUnidadesAsignadasByOperador(i.getIdOperador(), i.getTipoOperador(), "");
-						if(o != null && !o.isEmpty())
-							operadoresRepository.updateOperadoresSecundarios(
-									new OperadoresSecundariosUnidad(0, 0, 0, i.getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod), "idoperador");
-					}
-						
-					// Insertar operador 
-					OperadoresSecundariosUnidad operador = operadoresRepository.insertOperadoresSecundarios(
-							new OperadoresSecundariosUnidad(0, i.getIdUnidad(), i.getTipoUnidad(), i.getIdOperador(), i.getIdEsquemaPago(), 
-								i.getTipoOperador(), i.getOrdenOperador(), i.getHoraEntrada(), i.getHoraSalida(), (short)1, today, now, idPersonalMod));
-					
-					if(operador != null && operador.getIdOperadoresUnidad() != 0) 
-						i.setIdOperadoresUnidad(operador.getIdOperadoresUnidad());
-					
-				} 
-				catch(ResponseStatusException e) {
-					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getReason());
-				}
-				catch(Exception e) {
-					throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo insertar el registro de operadores");
-				}
-			});
-		}
-		
-		return operadoresSecundarios;
-		
-	}*/
 	
 	/**
 	 * updateOperadores: Actualiza los operadores para asignarlos a una unidad
@@ -292,7 +243,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 					if(ep.getModificable() != 1)
 						throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "El esquema de pago seleccionado no es modificable");
 					
-					int idPersonalMod = (int) catalogoRepository.findPersonal("idpersonal", "idusuario", i.getIdUsuarioMod());
+					int idPersonalMod = (int) utilitiesRepository.findPersonal("idpersonal", "idusuario", i.getIdUsuarioMod());
 					
 					// Dar de baja registros anteriores si el operador tiene unidades asignadas
 					if(i.getTipoOperador() == 2 && i.getEstatus() == 1) {
