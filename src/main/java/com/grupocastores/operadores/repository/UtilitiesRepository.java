@@ -12,6 +12,13 @@ import org.springframework.stereotype.Repository;
 
 import com.grupocastores.commons.oficinas.Servidores;
 
+/**
+ * UtilitiesRepository: Repositorio base para para usar con servidores vinculados.
+ * 
+ * @version 0.0.1
+ * @author Moises Lopez Arrona [moisesarrona]
+ * @date 2022-06-14
+ */
 @Repository
 public class UtilitiesRepository {
 
@@ -84,13 +91,5 @@ public class UtilitiesRepository {
 		return null;
 
 	}
-    
-    public static String getDb23() {
-        return DB_23;
-    }
-
-    public static String getDb13() {
-        return DB_13;
-    }
     
 }
