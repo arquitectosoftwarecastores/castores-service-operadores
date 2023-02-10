@@ -13,6 +13,13 @@ import com.grupocastores.commons.inhouse.Operadores;
 import com.grupocastores.commons.inhouse.OperadoresSecundariosUnidad;
 import com.grupocastores.commons.inhouse.Unidades;
 
+/**
+ * AsignacionRepository: Repositorio para gestionar procesos de asignación de operadores.
+ * 
+ * @version 0.0.1
+ * @author Cynthia Fuentes Amaro
+ * @date 2022-10-28
+ */
 @Repository
 public class AsignacionRepository extends UtilitiesRepository {
 
@@ -39,6 +46,15 @@ public class AsignacionRepository extends UtilitiesRepository {
 	static final String queryGetUnidadesAsignadasByOperador = 
 			"SELECT c.* FROM OPENQUERY (" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad os WHERE os.idoperador = \"%s\" AND os.tipooperador = %s AND os.estatus = 1 %s') AS a INNER JOIN OPENQUERY(" + DB_13 + ", 'SELECT * FROM camiones.unidades;') AS c ON a.idunidad = c.idunidad;";
 	
+	static final String queryCreateOperadoresSecundarios =
+			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, '%s', '%s', 1, '%s', '%s', %s)";
+	
+	static final String queryUpdateOperadoresSecundarios =
+			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, tipooperador = %s, ordenoperador = %s, horaentrada = '%s', horasalida = '%s';";
+	
+	static final String queryUpdateEstatusOperadoresSecundarios =
+			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', estatus = %s;";
+	
 	/**
 	 * getEsquemasPago: Obtiene los esquemas de pago del catálogo
 	 * 
@@ -48,9 +64,9 @@ public class AsignacionRepository extends UtilitiesRepository {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<EsquemasPago> getEsquemasPago() {
-
 		Query query = entityManager
 				.createNativeQuery(queryGetEsquemasPago, EsquemasPago.class);
+		
 		return query.getResultList();
 
 	}
@@ -136,14 +152,12 @@ public class AsignacionRepository extends UtilitiesRepository {
 	@SuppressWarnings("unchecked")
 	public OperadoresSecundariosUnidad insertOperadoresSecundarios(OperadoresSecundariosUnidad operadoresSecundarios) throws Exception {
 
-		String queryCreateOperadoresSecundarios =
-				"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL," + operadoresSecundarios.getIdUnidad() + ", " + 
-					operadoresSecundarios.getTipoUnidad() + ", " + operadoresSecundarios.getIdOperador() + ", " + operadoresSecundarios.getIdEsquemaPago() + ", " +
-					operadoresSecundarios.getTipoOperador() + ", " + operadoresSecundarios.getOrdenOperador() + ", '" + operadoresSecundarios.getHoraEntrada() + "', '" + 
-					operadoresSecundarios.getHoraSalida() + "', 1, '" + operadoresSecundarios.getFechaMod() + "', '" + operadoresSecundarios.getHoraMod() + "', " + 
-					operadoresSecundarios.getIdPersonalMod() + ")";
+		String query = String.format(queryCreateOperadoresSecundarios, 
+				operadoresSecundarios.getIdUnidad(), operadoresSecundarios.getTipoUnidad(), operadoresSecundarios.getIdOperador(), operadoresSecundarios.getIdEsquemaPago(), 
+				operadoresSecundarios.getTipoOperador(), operadoresSecundarios.getOrdenOperador(), operadoresSecundarios.getHoraEntrada(), operadoresSecundarios.getHoraSalida(),
+				operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod());
 		
-		if (executeStoredProcedure(queryCreateOperadoresSecundarios) == false)
+		if (executeStoredProcedure(query) == false)
 			return null;
 		
 		List<Object> list = entityManager.createNativeQuery(String.format(queryGetMaxIdOperadorAsignado)).getResultList();
@@ -166,18 +180,15 @@ public class AsignacionRepository extends UtilitiesRepository {
 	 */
 	public OperadoresSecundariosUnidad updateOperadoresSecundarios(OperadoresSecundariosUnidad operadoresSecundarios, String param) throws Exception {
 		
-		String queryUpdateOperadoresSecundarios =
-				"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE " + param + "') SET ";
+		String query = operadoresSecundarios.getEstatus() == 1 ? 
+				String.format(queryUpdateOperadoresSecundarios, 
+						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getIdUnidad(),
+						operadoresSecundarios.getTipoUnidad(), operadoresSecundarios.getIdOperador(), operadoresSecundarios.getIdEsquemaPago(), operadoresSecundarios.getTipoOperador(),
+						operadoresSecundarios.getOrdenOperador(), operadoresSecundarios.getHoraEntrada(), operadoresSecundarios.getHoraSalida()) :
+				String.format(queryUpdateEstatusOperadoresSecundarios, 
+						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getEstatus());
 		
-		queryUpdateOperadoresSecundarios += operadoresSecundarios.getEstatus() == 1 ?
-					"idunidad = " + operadoresSecundarios.getIdUnidad() + ", tipounidad = " + operadoresSecundarios.getTipoUnidad() + ", idoperador = " + operadoresSecundarios.getIdOperador() + 
-					", idesquemapago = " + operadoresSecundarios.getIdEsquemaPago() + ", tipooperador = " + operadoresSecundarios.getTipoOperador() + ", ordenoperador = " + operadoresSecundarios.getOrdenOperador() + 
-					", horaentrada = '" + operadoresSecundarios.getHoraEntrada() + "', horasalida = '" + operadoresSecundarios.getHoraSalida() + "'" :
-					"estatus = " + operadoresSecundarios.getEstatus();
-		
-		queryUpdateOperadoresSecundarios += ", fechamod = '" + operadoresSecundarios.getFechaMod() + "', horamod = '" + operadoresSecundarios.getHoraMod() + "', idpersonalmod = " + operadoresSecundarios.getIdPersonalMod() + ";";
-		
-		if (executeStoredProcedure(queryUpdateOperadoresSecundarios) == false)
+		if (executeStoredProcedure(query) == false)
 			return null;
 		
 		return operadoresSecundarios;
