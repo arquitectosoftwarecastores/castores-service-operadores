@@ -62,7 +62,6 @@ public class UtilitiesRepository {
      * @author Oscar Eduardo Guerra Salcedo [OscarGuerra]
      * @date 2022-09-22
      */
-    @SuppressWarnings("unchecked")
     public Servidores getLinkedServerByOfice(String idOficina) {
         Query query = entityManager.createNativeQuery(String.format(queryGetLinkedServerByIdOficina,
                 idOficina),Servidores.class

@@ -8,7 +8,7 @@ import com.grupocastores.commons.inhouse.OperadoresSecundariosRequest;
 import com.grupocastores.commons.inhouse.UnidadOperadorRequest;
 
 /**
- * IOperadoresService: Interfaz para obtener datos de los operadores.
+ * IAsignacionService: Interfaz para obtener datos de los operadores.
  * 
  * @version 0.0.1
  * @author Cynthia Fuentes Amaro
