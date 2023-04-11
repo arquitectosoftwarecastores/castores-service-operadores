@@ -3,13 +3,13 @@
 
     <property name="LOGS" value="./logs" />
 
-    <appender name="RollingFile"
+    <appender name="Console"
         class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>%white(%date{dd-MM-yy HH:mm:ss.SSS}) %highlight(%.-3level)  [%green(%t)] %cyan(%C{1.} %magenta(%L)): %msg%n%throwable</Pattern>
         </layout></appender>
 
-    <appender name="Console"
+    <appender name="RollingFile"
         class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS}/spring-boot-logger.log</file>
          <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
