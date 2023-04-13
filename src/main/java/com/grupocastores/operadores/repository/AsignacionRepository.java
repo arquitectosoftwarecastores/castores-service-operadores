@@ -44,7 +44,7 @@ public class AsignacionRepository extends UtilitiesRepository {
 			"SELECT * FROM OPENQUERY (" + DB_23 + ", 'SELECT MAX(os.idoperadoresunidad) FROM bitacorasinhouse.operadores_secundarios_unidad os;');";
 	
 	static final String queryGetUnidadesAsignadasByOperador = 
-			"SELECT c.* FROM OPENQUERY (" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad os WHERE os.idoperador = \"%s\" AND os.tipooperador = %s AND os.estatus = 1 %s') AS a INNER JOIN OPENQUERY(" + DB_13 + ", 'SELECT * FROM camiones.unidades;') AS c ON a.idunidad = c.idunidad;";
+			"SELECT c.* FROM OPENQUERY (" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad os WHERE os.idoperador = \"%s\" AND os.tipooperador = %s AND os.estatus = 1 %s') AS a INNER JOIN OPENQUERY(" + DB_13 + ", 'SELECT * FROM camiones.unidades;') AS c ON a.idunidad = c.unidad;";
 	
 	static final String queryCreateOperadoresSecundarios =
 			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, '%s', '%s', 1, '%s', '%s', %s)";
