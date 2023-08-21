@@ -58,7 +58,8 @@ public class AsignacionRepository extends UtilitiesRepository {
 					+ "'SELECT o.* FROM camiones.operadores o "
 					+ "  LEFT JOIN camiones.unidades u ON o.idpersonal = u.idoperador "
 					+ "  LEFT JOIN camiones.camiones c ON o.idpersonal = c.operador "
-					+ " WHERE u.idoperador IS NULL AND c.operador IS NULL AND o.unidad IS NULL AND o.status = 1 AND o.nombre LIKE \"%s\";');";
+					+ " WHERE u.idoperador IS NULL AND c.operador IS NULL AND o.unidad IS NULL "
+					+ "AND o.status = 1 AND o.nombre LIKE \"%s\";');";
 	
 	static final String queryGetOperadoresAsignados = 
 			"SELECT a.*, b.nombre FROM OPENQUERY (" + DB_23 + ", "
@@ -67,7 +68,8 @@ public class AsignacionRepository extends UtilitiesRepository {
 					+ "  os.idpersonalmod, os.idoperadoresunidad, os.idesquemanegociacion "
 					+ " FROM bitacorasinhouse.operadores_secundarios_unidad os "
 					+ "  INNER JOIN bitacorasinhouse.esquemas_pago ep ON os.idesquemapago = ep.idesquemapago "
-					+ " WHERE os.idunidad = \"%s\" AND os.tipooperador = 2 AND os.estatus = 1;') AS a "
+					+ " WHERE os.idunidad = \"%s\" AND os.estatus = 1 "
+					+ "  AND (os.tipooperador = 2 OR (os.tipooperador = 1 AND os.ordenoperador > 1)) ;') AS a "
 					+ "LEFT JOIN OPENQUERY(" + DB_13 + ", "
 					+ "'SELECT idpersonal, nombre "
 					+ " FROM camiones.operadores;') AS b ON a.idoperador = b.idpersonal ORDER BY 7;";
@@ -90,7 +92,7 @@ public class AsignacionRepository extends UtilitiesRepository {
 			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, idesquemanegociacion = %s, tipooperador = %s, ordenoperador = %s, horaentrada = '%s', horasalida = '%s';";
 	
 	static final String queryUpdateEstatusOperadoresSecundarios =
-			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', estatus = %s;";
+			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, estatus = %s;";
 	
 	/**
 	 * getEsquemasPago: Obtiene los esquemas de pago del catálogo
