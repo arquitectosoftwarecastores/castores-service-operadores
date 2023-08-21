@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 
 import com.grupocastores.commons.inhouse.EsquemasPago;
 import com.grupocastores.commons.inhouse.Operadores;
-import com.grupocastores.commons.inhouse.OperadoresSecundariosUnidad;
 import com.grupocastores.commons.inhouse.Unidades;
+import com.grupocastores.operadores.service.domain.OperadoresSecundariosUnidad;
 
 /**
  * AsignacionRepository: Repositorio para gestionar procesos de asignación de operadores.
@@ -30,27 +30,64 @@ public class AsignacionRepository extends UtilitiesRepository {
 			"SELECT * FROM OPENQUERY (" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.esquemas_pago WHERE estatus = 1;');";
 	
 	static final String queryGetUnidadesCliente = 
-			"SELECT a.*, c.id_cliente_inhouse, c.alias_inhouse, c.rfc, o.horaentrada, o.horasalida, o.idesquemapago, o.nombre esquema FROM OPENQUERY (" + DB_13 + ", 'SELECT u.idunidad, u.unidad, u.tipounidad, u.noeconomico, u.modelo, u.placas, c.marca, u.idoperador, o.idusuario, o.nombre, ur.idcliente, ur.idoficina, ur.cliente, ur.complementocliente, ur.observacion FROM monitoreo.unidades_renta ur LEFT JOIN camiones.unidades u ON ur.noeconomico = u.noeconomico LEFT JOIN camiones.camiones c ON u.unidad = c.unidad AND u.noeconomico = c.noeconomico AND u.idoperador = c.operador LEFT JOIN camiones.operadores o ON u.idoperador = o.idpersonal AND o.status = 1 WHERE u.estatus = 1 AND ur.estatus = 1') AS a " + 
-			"INNER JOIN OPENQUERY(" + DB_23 + ", 'SELECT ci.id_cliente_inhouse, ci.alias_inhouse, b.rfc, c.idcliente FROM bitacorasinhouse.clientes_inhouse ci INNER JOIN bitacorasinhouse.clientes_inhouse_clientes2009 b ON ci.id_cliente_inhouse = b.id_cliente_inhouse INNER JOIN clientes.clientes2009 c ON b.id_cliente = c.idcliente AND b.rfc = c.rfc WHERE b.estatus = 1 AND c.status = 1 AND ci.id_cliente_inhouse = %s GROUP BY ci.alias_inhouse;') AS c ON /*a.idcliente = c.idcliente AND */a.complementocliente = c.alias_inhouse " + 
-			"LEFT JOIN OPENQUERY("+ DB_23 + ", 'SELECT op.idoperador, op.idunidad, op.horaentrada, op.horasalida, op.idesquemapago, ep.nombre FROM bitacorasinhouse.operadores_secundarios_unidad op INNER JOIN bitacorasinhouse.esquemas_pago ep ON op.idesquemapago = ep.idesquemapago WHERE op.estatus = 1 AND op.tipooperador = 1 AND ep.estatus = 1;') AS o ON a.idoperador = o.idoperador AND a.idunidad = o.idunidad;";
+			"SELECT a.*, c.id_cliente_inhouse, c.alias_inhouse, c.rfc, "
+					+ "  o.horaentrada, o.horasalida, o.idesquemapago, o.nombre esquema, o.idesquemanegociacion "
+					+ " FROM OPENQUERY (" + DB_13 + ", "
+					+ "'SELECT u.idunidad, u.unidad, u.tipounidad, u.noeconomico, u.modelo, u.placas, c.marca, u.idoperador, "
+					+ "  o.idusuario, o.nombre, ur.idcliente, ur.idoficina, ur.cliente, ur.complementocliente, ur.observacion "
+					+ " FROM monitoreo.unidades_renta ur "
+					+ "  LEFT JOIN camiones.unidades u ON ur.noeconomico = u.noeconomico "
+					+ "  LEFT JOIN camiones.camiones c ON u.unidad = c.unidad AND u.noeconomico = c.noeconomico AND u.idoperador = c.operador "
+					+ "  LEFT JOIN camiones.operadores o ON u.idoperador = o.idpersonal AND o.status = 1 "
+					+ " WHERE u.estatus = 1 AND ur.estatus = 1') AS a " 
+					+ "INNER JOIN OPENQUERY(" + DB_23 + ", "
+					+ "'SELECT ci.id_cliente_inhouse, ci.alias_inhouse, b.rfc, c.idcliente "
+					+ " FROM bitacorasinhouse.clientes_inhouse ci "
+					+ "  INNER JOIN bitacorasinhouse.clientes_inhouse_clientes2009 b ON ci.id_cliente_inhouse = b.id_cliente_inhouse "
+					+ "  INNER JOIN clientes.clientes2009 c ON b.id_cliente = c.idcliente AND b.rfc = c.rfc "
+					+ " WHERE b.estatus = 1 AND c.status = 1 AND ci.id_cliente_inhouse = %s GROUP BY ci.alias_inhouse;') AS c ON a.complementocliente = c.alias_inhouse " 
+					+ "LEFT JOIN OPENQUERY("+ DB_23 + ", "
+					+ "'SELECT op.idoperador, op.idunidad, op.horaentrada, op.horasalida, "
+					+ "  op.idesquemapago, ep.nombre, op.idesquemanegociacion "
+					+ " FROM bitacorasinhouse.operadores_secundarios_unidad op "
+					+ "  INNER JOIN bitacorasinhouse.esquemas_pago ep ON op.idesquemapago = ep.idesquemapago "
+					+ " WHERE op.estatus = 1 AND op.tipooperador = 1 AND op.ordenoperador = 1 AND ep.estatus = 1;') AS o ON a.idoperador = o.idoperador AND a.idunidad = o.idunidad;";
 	
 	static final String queryFilterOperadoresDisponibles = 
-			"SELECT * FROM OPENQUERY (" + DB_13 + ", 'SELECT o.* FROM camiones.operadores o LEFT JOIN camiones.unidades u ON o.idpersonal = u.idoperador LEFT JOIN camiones.camiones c ON o.idpersonal = c.operador WHERE u.idoperador IS NULL AND c.operador IS NULL AND o.unidad IS NULL AND o.status = 1 AND o.nombre LIKE \"%s\";');";
+			"SELECT * FROM OPENQUERY (" + DB_13 + ", "
+					+ "'SELECT o.* FROM camiones.operadores o "
+					+ "  LEFT JOIN camiones.unidades u ON o.idpersonal = u.idoperador "
+					+ "  LEFT JOIN camiones.camiones c ON o.idpersonal = c.operador "
+					+ " WHERE u.idoperador IS NULL AND c.operador IS NULL AND o.unidad IS NULL AND o.status = 1 AND o.nombre LIKE \"%s\";');";
 	
 	static final String queryGetOperadoresAsignados = 
-			"SELECT a.*, b.nombre FROM OPENQUERY (" + DB_23 + ", 'SELECT os.idunidad, os.tipounidad, os.idoperador, os.idesquemapago, ep.nombre esquemaPago, os.tipooperador, os.ordenoperador, os.horaentrada, os.horasalida, os.fechamod, os.horamod, os.idpersonalmod, os.idoperadoresunidad FROM bitacorasinhouse.operadores_secundarios_unidad os INNER JOIN bitacorasinhouse.esquemas_pago ep ON os.idesquemapago = ep.idesquemapago WHERE os.idunidad = \"%s\" AND os.tipooperador = 2 AND os.estatus = 1;') AS a LEFT JOIN OPENQUERY(" + DB_13 + ", 'SELECT idpersonal, nombre FROM camiones.operadores;') AS b ON a.idoperador = b.idpersonal ORDER BY 7;";
+			"SELECT a.*, b.nombre FROM OPENQUERY (" + DB_23 + ", "
+					+ "'SELECT os.idunidad, os.tipounidad, os.idoperador, os.idesquemapago, ep.nombre esquemaPago, "
+					+ "  os.tipooperador, os.ordenoperador, os.horaentrada, os.horasalida, os.fechamod, os.horamod, "
+					+ "  os.idpersonalmod, os.idoperadoresunidad, os.idesquemanegociacion "
+					+ " FROM bitacorasinhouse.operadores_secundarios_unidad os "
+					+ "  INNER JOIN bitacorasinhouse.esquemas_pago ep ON os.idesquemapago = ep.idesquemapago "
+					+ " WHERE os.idunidad = \"%s\" AND os.tipooperador = 2 AND os.estatus = 1;') AS a "
+					+ "LEFT JOIN OPENQUERY(" + DB_13 + ", "
+					+ "'SELECT idpersonal, nombre "
+					+ " FROM camiones.operadores;') AS b ON a.idoperador = b.idpersonal ORDER BY 7;";
 	
 	static final String queryGetMaxIdOperadorAsignado = 
-			"SELECT * FROM OPENQUERY (" + DB_23 + ", 'SELECT MAX(os.idoperadoresunidad) FROM bitacorasinhouse.operadores_secundarios_unidad os;');";
+			"SELECT * FROM OPENQUERY (" + DB_23 + ", "
+					+ "'SELECT MAX(os.idoperadoresunidad) FROM bitacorasinhouse.operadores_secundarios_unidad os;');";
 	
 	static final String queryGetUnidadesAsignadasByOperador = 
-			"SELECT c.* FROM OPENQUERY (" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad os WHERE os.idoperador = \"%s\" AND os.tipooperador = %s AND os.estatus = 1 %s') AS a INNER JOIN OPENQUERY(" + DB_13 + ", 'SELECT * FROM camiones.unidades;') AS c ON a.idunidad = c.idunidad;";
+			"SELECT c.* FROM OPENQUERY (" + DB_23 + ", "
+					+ "'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad os "
+					+ " WHERE os.idoperador = \"%s\" AND os.tipooperador = %s AND os.estatus = 1 %s') AS a "
+					+ "INNER JOIN OPENQUERY(" + DB_13 + ", "
+					+ "'SELECT * FROM camiones.unidades;') AS c ON a.idunidad = c.idunidad;";
 	
 	static final String queryCreateOperadoresSecundarios =
-			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, '%s', '%s', 1, '%s', '%s', %s)";
+			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, '%s', '%s', 1, '%s', '%s', %s)";
 	
 	static final String queryUpdateOperadoresSecundarios =
-			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, tipooperador = %s, ordenoperador = %s, horaentrada = '%s', horasalida = '%s';";
+			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, idesquemanegociacion = %s, tipooperador = %s, ordenoperador = %s, horaentrada = '%s', horasalida = '%s';";
 	
 	static final String queryUpdateEstatusOperadoresSecundarios =
 			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', estatus = %s;";
@@ -153,9 +190,12 @@ public class AsignacionRepository extends UtilitiesRepository {
 	public OperadoresSecundariosUnidad insertOperadoresSecundarios(OperadoresSecundariosUnidad operadoresSecundarios) throws Exception {
 
 		String query = String.format(queryCreateOperadoresSecundarios, 
-				operadoresSecundarios.getIdUnidad(), operadoresSecundarios.getTipoUnidad(), operadoresSecundarios.getIdOperador(), operadoresSecundarios.getIdEsquemaPago(), 
-				operadoresSecundarios.getTipoOperador(), operadoresSecundarios.getOrdenOperador(), operadoresSecundarios.getHoraEntrada(), operadoresSecundarios.getHoraSalida(),
-				operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod());
+				operadoresSecundarios.getIdUnidad(), operadoresSecundarios.getTipoUnidad(), 
+				operadoresSecundarios.getIdOperador(), operadoresSecundarios.getIdEsquemaPago(), 
+				operadoresSecundarios.getIdEsquemaNegociacion(), operadoresSecundarios.getTipoOperador(), 
+				operadoresSecundarios.getOrdenOperador(), operadoresSecundarios.getHoraEntrada(), 
+				operadoresSecundarios.getHoraSalida(), operadoresSecundarios.getFechaMod(), 
+				operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod());
 		
 		if (executeStoredProcedure(query) == false)
 			return null;
@@ -182,11 +222,15 @@ public class AsignacionRepository extends UtilitiesRepository {
 		
 		String query = operadoresSecundarios.getEstatus() == 1 ? 
 				String.format(queryUpdateOperadoresSecundarios, 
-						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getIdUnidad(),
-						operadoresSecundarios.getTipoUnidad(), operadoresSecundarios.getIdOperador(), operadoresSecundarios.getIdEsquemaPago(), operadoresSecundarios.getTipoOperador(),
-						operadoresSecundarios.getOrdenOperador(), operadoresSecundarios.getHoraEntrada(), operadoresSecundarios.getHoraSalida()) :
+						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), 
+						operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getIdUnidad(),
+						operadoresSecundarios.getTipoUnidad(), operadoresSecundarios.getIdOperador(), 
+						operadoresSecundarios.getIdEsquemaPago(), operadoresSecundarios.getIdEsquemaNegociacion(), 
+						operadoresSecundarios.getTipoOperador(), operadoresSecundarios.getOrdenOperador(), 
+						operadoresSecundarios.getHoraEntrada(), operadoresSecundarios.getHoraSalida()) :
 				String.format(queryUpdateEstatusOperadoresSecundarios, 
-						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getEstatus());
+						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), 
+						operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getEstatus());
 		
 		if (executeStoredProcedure(query) == false)
 			return null;

@@ -18,10 +18,10 @@ import org.springframework.web.server.ResponseStatusException;
 import com.grupocastores.commons.inhouse.EsquemasPago;
 import com.grupocastores.commons.inhouse.Operadores;
 import com.grupocastores.commons.inhouse.OperadoresSecundariosRequest;
-import com.grupocastores.commons.inhouse.OperadoresSecundariosUnidad;
 import com.grupocastores.commons.inhouse.Unidades;
 import com.grupocastores.commons.inhouse.UnidadOperadorRequest;
 import com.grupocastores.operadores.repository.UtilitiesRepository;
+import com.grupocastores.operadores.service.domain.OperadoresSecundariosUnidad;
 import com.grupocastores.operadores.repository.AsignacionRepository;
 
 /**
@@ -50,15 +50,14 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	@Override
 	public List<EsquemasPago> getEsquemasPago() {
 		
-		List<EsquemasPago> lista = operadoresRepository.getEsquemasPago();
+		List<EsquemasPago> lstEsquemasPago = operadoresRepository.getEsquemasPago();
 		
-		if(lista != null && !lista.isEmpty()) {
-			lista.stream().forEach(i -> {
-				String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf(i.getIdPersonalMod()));
-				i.setIdUsuarioMod(idUsuarioMod);
-			});
-		}
-		return lista;
+		lstEsquemasPago.stream().forEach(i -> {
+			String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf(i.getIdPersonalMod()));
+			i.setIdUsuarioMod(idUsuarioMod);
+		});
+		
+		return lstEsquemasPago;
 		
 	}
 
@@ -73,23 +72,21 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	@Override
 	public List<UnidadOperadorRequest> getUnidadesCliente(int idClienteInhouse) {
 		
-		List<Object []> lista = operadoresRepository.getUnidadesCliente(idClienteInhouse);
-		List<UnidadOperadorRequest> unidades = new ArrayList<>();
+		List<Object []> lstUnidades = operadoresRepository.getUnidadesCliente(idClienteInhouse);
+		List<UnidadOperadorRequest> lstUnidadesResponse = new ArrayList<>();
 		
-		if(lista != null ) {
-			lista.stream().forEach(i -> {
-				unidades.add(new UnidadOperadorRequest((int)i[0], (int)i[1], (int)i[2], (String)i[3], (String)i[4], (String)i[5], (String)i[6], 
-					(int)i[7], (String)i[8], (String)i[9], i[18] != null ? ((Time)i[18]).toLocalTime() : null, i[19] != null ? ((Time)i[19]).toLocalTime() : null, // Operador 1
-					0, "", "", null, null, // Operador 2
-					(int)i[10], (String)i[11], i[12] != null ? ((String)i[12]).replaceAll("\r\n", "") : null, 
-					i[13] != null ? ((String)i[13]).replaceAll("\r\n", "") : null, (String)i[14], (int)i[15], (String)i[16], (String)i[17], 
-					i[20] != null ? (int)i[20] : 0, i[21] != null ? (String)i[21] : null));
-			});
-			
-			 unidades.stream().filter(x -> x.getComplementoCliente() != null && x.getComplementoCliente().contains(x.getAliasInhouse())).collect(Collectors.toList());
-		}
+		lstUnidades.stream().forEach(unidad -> {
+			lstUnidadesResponse.add(new UnidadOperadorRequest((int)unidad[0], (int)unidad[1], (int)unidad[2], (String)unidad[3], (String)unidad[4], (String)unidad[5], (String)unidad[6], 
+				(int)unidad[7], (String)unidad[8], (String)unidad[9], unidad[18] != null ? ((Time)unidad[18]).toLocalTime() : null, unidad[19] != null ? ((Time)unidad[19]).toLocalTime() : null, // Operador 1
+				0, "", "", null, null, // Operador 2
+				(int)unidad[10], (String)unidad[11], unidad[12] != null ? ((String)unidad[12]).replaceAll("\r\n", "") : null, 
+				unidad[13] != null ? ((String)unidad[13]).replaceAll("\r\n", "") : null, (String)unidad[14], (int)unidad[15], (String)unidad[16], (String)unidad[17], 
+				unidad[20] != null ? (int)unidad[20] : 0, unidad[21] != null ? (String)unidad[21] : null, unidad[22] != null ? (int)unidad[22] : 0));
+		});
 		
-		return unidades;
+		lstUnidadesResponse.stream().filter(unidad -> unidad.getComplementoCliente() != null && unidad.getComplementoCliente().contains(unidad.getAliasInhouse())).collect(Collectors.toList());
+		
+		return lstUnidadesResponse;
 		
 	}
 	
@@ -106,10 +103,10 @@ public class AsignacionServiceImpl implements IAsignacionService {
 		
 		List<Operadores> op = operadoresRepository.filterOperadoresDisponibles(nombre); 
 		
-		op.stream().forEach(i -> {
-			List<Unidades> o = operadoresRepository.getUnidadesAsignadasByOperador(i.getIdPersonal(), 2, "");
+		op.stream().forEach(operador -> {
+			List<Unidades> o = operadoresRepository.getUnidadesAsignadasByOperador(operador.getIdPersonal(), 2, "");
 			
-			i.setUnidadesAsignadas(o != null ? o : new ArrayList<>());
+			operador.setUnidadesAsignadas(o != null ? o : new ArrayList<>());
 		});
 		
 		return op;
@@ -127,19 +124,17 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	@Override
 	public List<OperadoresSecundariosRequest> getOperadoresAsignados(int idUnidad) {
 		
-		List<Object []> lista = operadoresRepository.getOperadoresAsignados(idUnidad);
-		List<OperadoresSecundariosRequest> operadores = new ArrayList<>();
+		List<Object []> lstOperadores = operadoresRepository.getOperadoresAsignados(idUnidad);
+		List<OperadoresSecundariosRequest> lstOperadoresResponse = new ArrayList<>();
 		
-		if(lista != null ) {
-			lista.stream().forEach(i -> {
-				String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)i[11]));
-				
-				operadores.add(new OperadoresSecundariosRequest((int)i[12], (int)i[0], (int)i[1], (int)i[2], (String)i[13], (int)i[3], (String)i[4], (int)i[5], (int)i[6], 
-					((Time)i[7]).toLocalTime(), ((Time)i[8]).toLocalTime(), (short)1, ((Date)i[9]).toLocalDate(), ((Time)i[10]).toLocalTime(), idUsuarioMod));
-			});
-		}
+		lstOperadores.stream().forEach(operador -> {
+			String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)operador[11]));
+			
+			lstOperadoresResponse.add(new OperadoresSecundariosRequest((int)operador[12], (int)operador[0], (int)operador[1], (int)operador[2], (String)operador[14], (int)operador[3], (String)operador[4], (int)operador[5], (int)operador[6], 
+					((Time)operador[7]).toLocalTime(), ((Time)operador[8]).toLocalTime(), (short)1, ((Date)operador[9]).toLocalDate(), ((Time)operador[10]).toLocalTime(), idUsuarioMod, operador[13] != null ? (int)operador[13] : 0));
+		});
 		
-		return operadores;
+		return lstOperadoresResponse;
 		
 	}
 	
@@ -152,49 +147,61 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	 * @date 2022-11-03
 	 */
 	@Override
-	public List<OperadoresSecundariosRequest> asignarOperadores(List<OperadoresSecundariosRequest> operadoresSecundarios) {
+	public List<OperadoresSecundariosRequest> asignarOperadores(List<OperadoresSecundariosRequest> lstOperadoresSecundarios) {
 		
 		LocalDate today = LocalDate.now();
 		LocalTime now = LocalTime.now();
-		List<EsquemasPago> esquemasPago = operadoresRepository.getEsquemasPago();
+		List<EsquemasPago> lstEsquemasPago = operadoresRepository.getEsquemasPago();
 		
-		if(operadoresSecundarios != null && !operadoresSecundarios.isEmpty()) {
-			int idPersonalMod  = (int) utilitiesRepository.findPersonal("idpersonal", "idusuario", operadoresSecundarios.get(0).getIdUsuarioMod());
-
+		if(lstOperadoresSecundarios != null && !lstOperadoresSecundarios.isEmpty()) {
+			int idPersonalMod  = (int) utilitiesRepository.findPersonal("idpersonal", "idusuario", lstOperadoresSecundarios.get(0).getIdUsuarioMod());
+			int operadoresTitulares = lstOperadoresSecundarios.stream()
+					.filter(operador -> operador.getTipoOperador() == 1)
+					.collect(Collectors.toList()).size();
+			int operadoresAuxiliares = lstOperadoresSecundarios.stream()
+					.filter(operador -> operador.getTipoOperador() == 2)
+					.collect(Collectors.toList()).size();
+			
+			if(!validarOperadoresPorEsquema(1, lstOperadoresSecundarios.get(0).getIdEsquemaPago(), operadoresTitulares)
+					|| !validarOperadoresPorEsquema(2, lstOperadoresSecundarios.get(0).getIdEsquemaPago(), operadoresAuxiliares))
+				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Se excedió la cantidad permitida de operadores para el esquema");
+			
 			try {
 				// Dar de baja todos los operadores asignados a esa unidad
 				operadoresRepository.updateOperadoresSecundarios(
-						new OperadoresSecundariosUnidad(0, 0, 0, operadoresSecundarios.get(0).getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod), 
-						"idunidad = " + operadoresSecundarios.get(0).getIdUnidad());
+						new OperadoresSecundariosUnidad(0, 0, 0, lstOperadoresSecundarios.get(0).getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod, 0), 
+						"idunidad = " + lstOperadoresSecundarios.get(0).getIdUnidad());
 				
-				Holder<Integer> contadorSecundarios = new Holder<>(1);
-				Holder<Integer> contadorTitulares = new Holder<>(1);
+				Holder<Integer> contadorAuxiliares = new Holder<>(1);
+//				Holder<Integer> contadorTitulares = new Holder<>(1);
 				
-				operadoresSecundarios.stream().forEach(i -> {
+				lstOperadoresSecundarios.stream().forEach(operador -> {
 					try {
 						// Validar esquema de pago
-						EsquemasPago ep = esquemasPago.stream().filter(x -> x.getIdEsquemaPago() == i.getIdEsquemaPago()).findFirst().orElse(null);
-						if(ep == null)
+						EsquemasPago esquemaPago = lstEsquemasPago.stream().filter(x -> x.getIdEsquemaPago() == operador.getIdEsquemaPago()).findFirst().orElse(null);
+						if(esquemaPago == null)
 							throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se encontró el esquema de pago");
 						
 						// Dar de baja registros anteriores si el operador tiene unidades asignadas
-						if(i.getTipoOperador() == 2) {
-							if(ep.getModificable() != 1)
-								throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "El esquema de pago seleccionado no es modificable");
+//						if(operador.getTipoOperador() == 2) {
+////							if(esquemaPago.getModificable() != 1)
+////								throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "El esquema de pago seleccionado no es modificable");
+////							
+//						}
 							
-							List<Unidades> o = operadoresRepository.getUnidadesAsignadasByOperador(i.getIdOperador(), i.getTipoOperador(), "");
-							if(o != null && !o.isEmpty())
-								operadoresRepository.updateOperadoresSecundarios(
-										new OperadoresSecundariosUnidad(0, 0, 0, i.getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod), "idoperador = " + i.getIdOperador());
-						}
-							
-						// Insertar operador 
-						OperadoresSecundariosUnidad operador = operadoresRepository.insertOperadoresSecundarios(
-								new OperadoresSecundariosUnidad(0, i.getIdUnidad(), i.getTipoUnidad(), i.getIdOperador(), i.getIdEsquemaPago(), 
-									i.getTipoOperador(), i.getTipoOperador() == 1 ? contadorTitulares.value++ : contadorSecundarios.value++, i.getHoraEntrada(), i.getHoraSalida(), (short)1, today, now, idPersonalMod));
+						List<Unidades> lstUnidades = operadoresRepository.getUnidadesAsignadasByOperador(operador.getIdOperador(), operador.getTipoOperador(), "");
+						if(!lstUnidades.isEmpty())
+							operadoresRepository.updateOperadoresSecundarios(
+									new OperadoresSecundariosUnidad(0, 0, 0, operador.getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod, 0), "idoperador = " + operador.getIdOperador());
 						
-						if(operador != null && operador.getIdOperadoresUnidad() != 0) 
-							i.setIdOperadoresUnidad(operador.getIdOperadoresUnidad());
+						// Insertar operador 
+						OperadoresSecundariosUnidad operadorInserted = operadoresRepository.insertOperadoresSecundarios(
+								new OperadoresSecundariosUnidad(0, operador.getIdUnidad(), operador.getTipoUnidad(), operador.getIdOperador(), operador.getIdEsquemaPago(), 
+									operador.getTipoOperador(), operador.getTipoOperador() == 1 ? operador.getOrdenOperador() : contadorAuxiliares.value++, 
+									operador.getHoraEntrada(), operador.getHoraSalida(), (short)1, today, now, idPersonalMod, 0));
+						
+						if(operadorInserted != null && operadorInserted.getIdOperadoresUnidad() != 0) 
+							operador.setIdOperadoresUnidad(operadorInserted.getIdOperadoresUnidad());
 					} 
 					catch(ResponseStatusException e) {
 						throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getReason());
@@ -213,7 +220,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 			}
 		}
 		
-		return operadoresSecundarios;
+		return lstOperadoresSecundarios;
 		
 	}
 	
@@ -226,49 +233,49 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	 * @date 2022-11-03
 	 */
 	@Override
-	public List<OperadoresSecundariosRequest> updateOperadores(List<OperadoresSecundariosRequest> operadoresSecundarios) {
+	public List<OperadoresSecundariosRequest> updateOperadores(List<OperadoresSecundariosRequest> lstOperadoresSecundarios) {
 		
 		LocalDate today = LocalDate.now();
 		LocalTime now = LocalTime.now();
-		List<EsquemasPago> esquemasPago = operadoresRepository.getEsquemasPago();
+		List<EsquemasPago> lstEsquemasPago = operadoresRepository.getEsquemasPago();
 		
-		if(operadoresSecundarios != null && !operadoresSecundarios.isEmpty()) {
-			operadoresSecundarios.stream().forEach(i -> {
+		if(lstOperadoresSecundarios != null && !lstOperadoresSecundarios.isEmpty()) {
+			lstOperadoresSecundarios.stream().forEach(operador -> {
 				try {
 					// Validar esquema de pago
-					EsquemasPago ep = esquemasPago.stream().filter(x -> x.getIdEsquemaPago() == i.getIdEsquemaPago()).findFirst().orElse(null);
-					if(ep == null)
+					EsquemasPago esquemaPago = lstEsquemasPago.stream().filter(x -> x.getIdEsquemaPago() == operador.getIdEsquemaPago()).findFirst().orElse(null);
+					if(esquemaPago == null)
 						throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se encontró el esquema de pago");
 					
-					if(ep.getModificable() != 1)
+					if(esquemaPago.getModificable() != 1)
 						throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "El esquema de pago seleccionado no es modificable");
 					
-					int idPersonalMod = (int) utilitiesRepository.findPersonal("idpersonal", "idusuario", i.getIdUsuarioMod());
+					int idPersonalMod = (int) utilitiesRepository.findPersonal("idpersonal", "idusuario", operador.getIdUsuarioMod());
 					
 					// Dar de baja registros anteriores si el operador tiene unidades asignadas
-					if(i.getTipoOperador() == 2 && i.getEstatus() == 1) {
-						List<Unidades> o = i.getIdOperadoresUnidad() != null && i.getIdOperadoresUnidad() != 0 ?
-								operadoresRepository.getUnidadesAsignadasByOperador(i.getIdOperador(), i.getTipoOperador(), "AND idoperadoresunidad <> " + i.getIdOperadoresUnidad()) :
-								operadoresRepository.getUnidadesAsignadasByOperador(i.getIdOperador(), i.getTipoOperador(), "");
-						if(o != null && !o.isEmpty())
+					if(operador.getTipoOperador() == 2 && operador.getEstatus() == 1) {
+						List<Unidades> lstUnidades = operador.getIdOperadoresUnidad() != null && operador.getIdOperadoresUnidad() != 0 ?
+								operadoresRepository.getUnidadesAsignadasByOperador(operador.getIdOperador(), operador.getTipoOperador(), "AND idoperadoresunidad <> " + operador.getIdOperadoresUnidad()) :
+								operadoresRepository.getUnidadesAsignadasByOperador(operador.getIdOperador(), operador.getTipoOperador(), "");
+						if(!lstUnidades.isEmpty())
 							operadoresRepository.updateOperadoresSecundarios(
-									new OperadoresSecundariosUnidad(0, 0, 0, i.getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod), "idoperador");
+									new OperadoresSecundariosUnidad(0, 0, 0, operador.getIdOperador(), 0, 0, 0, null, null, (short)0, today, now, idPersonalMod, 0), "idoperador");
 					}
 					
 					// Si sí se envía el id, modificar
-					if(i.getIdOperadoresUnidad() != null && i.getIdOperadoresUnidad() != 0) 
+					if(operador.getIdOperadoresUnidad() != null && operador.getIdOperadoresUnidad() != 0) 
 						operadoresRepository.updateOperadoresSecundarios(
-								new OperadoresSecundariosUnidad(i.getIdOperadoresUnidad(), i.getIdUnidad(), i.getTipoUnidad(), i.getIdOperador(), i.getIdEsquemaPago(), 
-									i.getTipoOperador(), i.getOrdenOperador(), i.getHoraEntrada(), i.getHoraSalida(), i.getEstatus(), today, now, idPersonalMod), "idoperadoresunidad");
+								new OperadoresSecundariosUnidad(operador.getIdOperadoresUnidad(), operador.getIdUnidad(), operador.getTipoUnidad(), operador.getIdOperador(), operador.getIdEsquemaPago(), 
+									operador.getTipoOperador(), operador.getOrdenOperador(), operador.getHoraEntrada(), operador.getHoraSalida(), operador.getEstatus(), today, now, idPersonalMod, 0), "idoperadoresunidad");
 					
 					// Si no se envía el id, insertar
 					else {
-						OperadoresSecundariosUnidad operador = operadoresRepository.insertOperadoresSecundarios(
-								new OperadoresSecundariosUnidad(0, i.getIdUnidad(), i.getTipoUnidad(), i.getIdOperador(), i.getIdEsquemaPago(), 
-									i.getTipoOperador(), i.getOrdenOperador(), i.getHoraEntrada(), i.getHoraSalida(), (short)1, today, now, idPersonalMod));
+						OperadoresSecundariosUnidad operadorInserted = operadoresRepository.insertOperadoresSecundarios(
+								new OperadoresSecundariosUnidad(0, operador.getIdUnidad(), operador.getTipoUnidad(), operador.getIdOperador(), operador.getIdEsquemaPago(), 
+									operador.getTipoOperador(), operador.getOrdenOperador(), operador.getHoraEntrada(), operador.getHoraSalida(), (short)1, today, now, idPersonalMod, operador.getIdEsquemaNegociacion()));
 						
-						if(operador != null && operador.getIdOperadoresUnidad() != 0) 
-							i.setIdOperadoresUnidad(operador.getIdOperadoresUnidad());
+						if(operadorInserted != null && operadorInserted.getIdOperadoresUnidad() != 0) 
+							operador.setIdOperadoresUnidad(operadorInserted.getIdOperadoresUnidad());
 					}
 				} 
 				catch(ResponseStatusException e) {
@@ -280,7 +287,38 @@ public class AsignacionServiceImpl implements IAsignacionService {
 			});
 		}
 		
-		return operadoresSecundarios;
+		return lstOperadoresSecundarios;
 		
+	}
+	
+	public Boolean validarOperadoresPorEsquema(int tipoOperador, int idEsquemaPago, int cantidadRegistrada) {
+		int cantidadPermitida;
+		switch(idEsquemaPago) {
+		case 1: // NÓMINA
+			cantidadPermitida = tipoOperador == 1 ? 1 : 2;
+			break;
+		case 2: // DOBLE OPERADOR
+			cantidadPermitida = tipoOperador == 1 ? 2 : 0;
+			break;
+		case 3: // DOBLE OPERADOR DIFERENTE HORARIO
+			cantidadPermitida = tipoOperador == 1 ? 4 : 0;
+			break;
+		case 4: // POSTURAS
+			cantidadPermitida = tipoOperador == 1 ? 1 : 1;
+			break;
+		case 5: // FLETE FIJO
+			cantidadPermitida = tipoOperador == 1 ? 1 : 2;
+			break;
+		case 6: // PAGO POR VIAJE
+			cantidadPermitida = tipoOperador == 1 ? 1 : 2;
+			break;
+		case 7: // POR COMISIÓN
+			cantidadPermitida = tipoOperador == 1 ? 4 : 0;
+			break;
+		default: 
+			cantidadPermitida = 0;
+		}
+		
+		return cantidadRegistrada <= cantidadPermitida;
 	}
 }
