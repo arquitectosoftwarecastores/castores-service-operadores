@@ -4,9 +4,8 @@ import java.util.List;
 
 import com.grupocastores.commons.inhouse.EsquemasPago;
 import com.grupocastores.commons.inhouse.Operadores;
-import com.grupocastores.commons.inhouse.OperadoresSecundariosRequest;
-import com.grupocastores.commons.inhouse.UnidadOperadorRequest;
-
+import com.grupocastores.operadores.dto.UnidadOperadorDTO;
+import com.grupocastores.operadores.dto.OperadoresSecundariosDTO;
 /**
  * IAsignacionService: Interfaz para obtener datos de los operadores.
  * 
@@ -33,7 +32,7 @@ public interface IAsignacionService {
 	 * @author Cynthia Fuentes Amaro
 	 * @date 2022-10-28
 	 */
-	public List<UnidadOperadorRequest> getUnidadesCliente(int idClienteInhouse);
+	public List<UnidadOperadorDTO> getUnidadesCliente(int idClienteInhouse);
 	
 	/**
 	 * filtraOperadoresDisponibles: Obtiene los operadores disponibles para asignar
@@ -53,7 +52,7 @@ public interface IAsignacionService {
 	 * @author Cynthia Fuentes Amaro
 	 * @date 2022-11-02
 	 */
-	public List<OperadoresSecundariosRequest> getOperadoresAsignados(int idUnidad);
+	public List<OperadoresSecundariosDTO> getOperadoresAsignados(int idUnidad);
 	
 	/**
 	 * asignarOperadores: Asigna los operadores a una unidad
@@ -63,7 +62,7 @@ public interface IAsignacionService {
 	 * @author Cynthia Fuentes Amaro
 	 * @date 2022-11-03
 	 */
-	public List<OperadoresSecundariosRequest> asignarOperadores(List<OperadoresSecundariosRequest> operadoresSecundarios);
+	public List<OperadoresSecundariosDTO> asignarOperadores(List<OperadoresSecundariosDTO> operadoresSecundarios);
 	
 	/**
 	 * updateOperadores: Actualiza los operadores para asignarlos a una unidad
@@ -73,6 +72,6 @@ public interface IAsignacionService {
 	 * @author Cynthia Fuentes Amaro
 	 * @date 2022-11-03
 	 */
-	public List<OperadoresSecundariosRequest> updateOperadores(List<OperadoresSecundariosRequest> operadoresSecundarios);
+	public List<OperadoresSecundariosDTO> updateOperadores(List<OperadoresSecundariosDTO> operadoresSecundarios);
 	
 }

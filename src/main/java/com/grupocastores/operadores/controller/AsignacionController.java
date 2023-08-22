@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.grupocastores.commons.inhouse.EsquemasPago;
 import com.grupocastores.commons.inhouse.Operadores;
-import com.grupocastores.commons.inhouse.OperadoresSecundariosRequest;
-import com.grupocastores.commons.inhouse.UnidadOperadorRequest;
+import com.grupocastores.operadores.dto.UnidadOperadorDTO;
+import com.grupocastores.operadores.dto.OperadoresSecundariosDTO;
 import com.grupocastores.operadores.service.IAsignacionService;
 
 @RestController
@@ -35,8 +35,8 @@ public class AsignacionController {
 	}
 	
 	@GetMapping(value = "/getUnidadesCliente/{idClienteInhouse}")
-	public ResponseEntity<List<UnidadOperadorRequest>> getUnidadesCliente(@PathVariable("idClienteInhouse") int idClienteInhouse) {
-		List<UnidadOperadorRequest> list = operadoresService.getUnidadesCliente(idClienteInhouse);
+	public ResponseEntity<List<UnidadOperadorDTO>> getUnidadesCliente(@PathVariable("idClienteInhouse") int idClienteInhouse) {
+		List<UnidadOperadorDTO> list = operadoresService.getUnidadesCliente(idClienteInhouse);
 		if (list == null || list.isEmpty())
 			return ResponseEntity.noContent().build();
 		return ResponseEntity.ok(list);
@@ -52,22 +52,22 @@ public class AsignacionController {
 	}
 	
 	@GetMapping(value = {"/getOperadoresAsignados/{idUnidad}"})
-	public ResponseEntity<List<OperadoresSecundariosRequest>> getOperadoresAsignados(@PathVariable("idUnidad") int idUnidad) {
-		List<OperadoresSecundariosRequest> list = operadoresService.getOperadoresAsignados(idUnidad);
+	public ResponseEntity<List<OperadoresSecundariosDTO>> getOperadoresAsignados(@PathVariable("idUnidad") int idUnidad) {
+		List<OperadoresSecundariosDTO> list = operadoresService.getOperadoresAsignados(idUnidad);
 		if (list == null || list.isEmpty())
 			return ResponseEntity.noContent().build();
 		return ResponseEntity.ok(list);
 	}
 	
 	@PostMapping(value = "/asignarOperadores")
-	public ResponseEntity<List<OperadoresSecundariosRequest>> asignarOperadores(@RequestBody List<OperadoresSecundariosRequest> operadoresSecundarios) {
-		List<OperadoresSecundariosRequest> list = operadoresService.asignarOperadores(operadoresSecundarios);
+	public ResponseEntity<List<OperadoresSecundariosDTO>> asignarOperadores(@RequestBody List<OperadoresSecundariosDTO> operadoresSecundarios) {
+		List<OperadoresSecundariosDTO> list = operadoresService.asignarOperadores(operadoresSecundarios);
 		return ResponseEntity.ok(list);
 	}
 	
 	@PutMapping(value = "/updateOperadores")
-	public ResponseEntity<List<OperadoresSecundariosRequest>> updateOperadores(@RequestBody List<OperadoresSecundariosRequest> operadoresSecundarios) {
-		List<OperadoresSecundariosRequest> list = operadoresService.updateOperadores(operadoresSecundarios);
+	public ResponseEntity<List<OperadoresSecundariosDTO>> updateOperadores(@RequestBody List<OperadoresSecundariosDTO> operadoresSecundarios) {
+		List<OperadoresSecundariosDTO> list = operadoresService.updateOperadores(operadoresSecundarios);
 		return ResponseEntity.ok(list);
 	}
 

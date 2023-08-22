@@ -17,12 +17,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.grupocastores.commons.inhouse.EsquemasPago;
 import com.grupocastores.commons.inhouse.Operadores;
-import com.grupocastores.commons.inhouse.OperadoresSecundariosRequest;
 import com.grupocastores.commons.inhouse.Unidades;
-import com.grupocastores.commons.inhouse.UnidadOperadorRequest;
-import com.grupocastores.operadores.repository.UtilitiesRepository;
+import com.grupocastores.operadores.dto.UnidadOperadorDTO;
+import com.grupocastores.operadores.dto.OperadoresSecundariosDTO;
 import com.grupocastores.operadores.service.domain.OperadoresSecundariosUnidad;
 import com.grupocastores.operadores.repository.AsignacionRepository;
+import com.grupocastores.operadores.repository.UtilitiesRepository;
 
 /**
  * AsignacionServiceImpl: Servicio para la asignación de operadores.
@@ -70,13 +70,13 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	 * @date 2022-10-28
 	 */
 	@Override
-	public List<UnidadOperadorRequest> getUnidadesCliente(int idClienteInhouse) {
+	public List<UnidadOperadorDTO> getUnidadesCliente(int idClienteInhouse) {
 		
 		List<Object []> lstUnidades = operadoresRepository.getUnidadesCliente(idClienteInhouse);
-		List<UnidadOperadorRequest> lstUnidadesResponse = new ArrayList<>();
+		List<UnidadOperadorDTO> lstUnidadesResponse = new ArrayList<>();
 		
 		lstUnidades.stream().forEach(unidad -> {
-			lstUnidadesResponse.add(new UnidadOperadorRequest((int)unidad[0], (int)unidad[1], (int)unidad[2], (String)unidad[3], (String)unidad[4], (String)unidad[5], (String)unidad[6], 
+			lstUnidadesResponse.add(new UnidadOperadorDTO((int)unidad[0], (int)unidad[1], (int)unidad[2], (String)unidad[3], (String)unidad[4], (String)unidad[5], (String)unidad[6], 
 				(int)unidad[7], (String)unidad[8], (String)unidad[9], unidad[18] != null ? ((Time)unidad[18]).toLocalTime() : null, unidad[19] != null ? ((Time)unidad[19]).toLocalTime() : null, // Operador 1
 				0, "", "", null, null, // Operador 2
 				(int)unidad[10], (String)unidad[11], unidad[12] != null ? ((String)unidad[12]).replaceAll("\r\n", "") : null, 
@@ -122,15 +122,15 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	 * @date 2022-11-02
 	 */
 	@Override
-	public List<OperadoresSecundariosRequest> getOperadoresAsignados(int idUnidad) {
+	public List<OperadoresSecundariosDTO> getOperadoresAsignados(int idUnidad) {
 		
 		List<Object []> lstOperadores = operadoresRepository.getOperadoresAsignados(idUnidad);
-		List<OperadoresSecundariosRequest> lstOperadoresResponse = new ArrayList<>();
+		List<OperadoresSecundariosDTO> lstOperadoresResponse = new ArrayList<>();
 		
 		lstOperadores.stream().forEach(operador -> {
 			String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)operador[11]));
 			
-			lstOperadoresResponse.add(new OperadoresSecundariosRequest((int)operador[12], (int)operador[0], (int)operador[1], (int)operador[2], (String)operador[14], (int)operador[3], (String)operador[4], (int)operador[5], (int)operador[6], 
+			lstOperadoresResponse.add(new OperadoresSecundariosDTO((int)operador[12], (int)operador[0], (int)operador[1], (int)operador[2], (String)operador[14], (int)operador[3], (String)operador[4], (int)operador[5], (int)operador[6], 
 					((Time)operador[7]).toLocalTime(), ((Time)operador[8]).toLocalTime(), (short)1, ((Date)operador[9]).toLocalDate(), ((Time)operador[10]).toLocalTime(), idUsuarioMod, operador[13] != null ? (int)operador[13] : 0));
 		});
 		
@@ -147,7 +147,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	 * @date 2022-11-03
 	 */
 	@Override
-	public List<OperadoresSecundariosRequest> asignarOperadores(List<OperadoresSecundariosRequest> lstOperadoresSecundarios) {
+	public List<OperadoresSecundariosDTO> asignarOperadores(List<OperadoresSecundariosDTO> lstOperadoresSecundarios) {
 		
 		LocalDate today = LocalDate.now();
 		LocalTime now = LocalTime.now();
@@ -233,7 +233,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 	 * @date 2022-11-03
 	 */
 	@Override
-	public List<OperadoresSecundariosRequest> updateOperadores(List<OperadoresSecundariosRequest> lstOperadoresSecundarios) {
+	public List<OperadoresSecundariosDTO> updateOperadores(List<OperadoresSecundariosDTO> lstOperadoresSecundarios) {
 		
 		LocalDate today = LocalDate.now();
 		LocalTime now = LocalTime.now();
