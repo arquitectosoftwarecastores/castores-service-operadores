@@ -174,7 +174,6 @@ public class AsignacionServiceImpl implements IAsignacionService {
 						"idunidad = " + lstOperadoresSecundarios.get(0).getIdUnidad());
 				
 				Holder<Integer> contadorAuxiliares = new Holder<>(1);
-//				Holder<Integer> contadorTitulares = new Holder<>(1);
 				
 				lstOperadoresSecundarios.stream().forEach(operador -> {
 					try {
@@ -182,13 +181,6 @@ public class AsignacionServiceImpl implements IAsignacionService {
 						EsquemasPago esquemaPago = lstEsquemasPago.stream().filter(x -> x.getIdEsquemaPago() == operador.getIdEsquemaPago()).findFirst().orElse(null);
 						if(esquemaPago == null)
 							throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se encontró el esquema de pago");
-						
-						// Dar de baja registros anteriores si el operador tiene unidades asignadas
-//						if(operador.getTipoOperador() == 2) {
-////							if(esquemaPago.getModificable() != 1)
-////								throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "El esquema de pago seleccionado no es modificable");
-////							
-//						}
 							
 						List<Unidades> lstUnidades = operadoresRepository.getUnidadesAsignadasByOperador(operador.getIdOperador(), operador.getTipoOperador(), "");
 						if(!lstUnidades.isEmpty())

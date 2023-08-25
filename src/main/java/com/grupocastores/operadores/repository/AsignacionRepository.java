@@ -89,7 +89,7 @@ public class AsignacionRepository extends UtilitiesRepository {
 			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, '%s', '%s', 1, '%s', '%s', %s)";
 	
 	static final String queryUpdateOperadoresSecundarios =
-			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, idesquemanegociacion = %s, tipooperador = %s, ordenoperador = %s, horaentrada = '%s', horasalida = '%s';";
+			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, idesquemanegociacion = %s, tipooperador = %s, ordenoperador = %s, horaentrada = %s, horasalida = %s;";
 	
 	static final String queryUpdateEstatusOperadoresSecundarios =
 			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, estatus = %s;";
@@ -229,7 +229,8 @@ public class AsignacionRepository extends UtilitiesRepository {
 						operadoresSecundarios.getTipoUnidad(), operadoresSecundarios.getIdOperador(), 
 						operadoresSecundarios.getIdEsquemaPago(), operadoresSecundarios.getIdEsquemaNegociacion(), 
 						operadoresSecundarios.getTipoOperador(), operadoresSecundarios.getOrdenOperador(), 
-						operadoresSecundarios.getHoraEntrada(), operadoresSecundarios.getHoraSalida()) :
+						(operadoresSecundarios.getHoraEntrada() != null ? "'" + operadoresSecundarios.getHoraEntrada() + "'" : "null"), 
+						(operadoresSecundarios.getHoraSalida() != null ? "'" + operadoresSecundarios.getHoraSalida() + "'" : "null")) :
 				String.format(queryUpdateEstatusOperadoresSecundarios, 
 						param, operadoresSecundarios.getFechaMod(), operadoresSecundarios.getHoraMod(), 
 						operadoresSecundarios.getIdPersonalMod(), operadoresSecundarios.getEstatus());
