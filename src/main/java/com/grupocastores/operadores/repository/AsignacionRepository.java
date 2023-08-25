@@ -195,8 +195,10 @@ public class AsignacionRepository extends UtilitiesRepository {
 				operadoresSecundarios.getIdUnidad(), operadoresSecundarios.getTipoUnidad(), 
 				operadoresSecundarios.getIdOperador(), operadoresSecundarios.getIdEsquemaPago(), 
 				operadoresSecundarios.getIdEsquemaNegociacion(), operadoresSecundarios.getTipoOperador(), 
-				operadoresSecundarios.getOrdenOperador(), operadoresSecundarios.getHoraEntrada(), 
-				operadoresSecundarios.getHoraSalida(), operadoresSecundarios.getFechaMod(), 
+				operadoresSecundarios.getOrdenOperador(), 
+				(operadoresSecundarios.getHoraEntrada() != null ? "'" + operadoresSecundarios.getHoraEntrada() + "'" : "null"), 
+				(operadoresSecundarios.getHoraSalida() != null ? "'" + operadoresSecundarios.getHoraSalida() + "'" : "null"),
+				operadoresSecundarios.getFechaMod(), 
 				operadoresSecundarios.getHoraMod(), operadoresSecundarios.getIdPersonalMod());
 		
 		if (executeStoredProcedure(query) == false)
