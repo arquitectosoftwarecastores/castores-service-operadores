@@ -86,7 +86,7 @@ public class AsignacionRepository extends UtilitiesRepository {
 					+ "'SELECT * FROM camiones.unidades;') AS c ON a.idunidad = c.idunidad;";
 	
 	static final String queryCreateOperadoresSecundarios =
-			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, '%s', '%s', 1, '%s', '%s', %s)";
+			"INSERT INTO OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad') VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s, 1, '%s', '%s', %s)";
 	
 	static final String queryUpdateOperadoresSecundarios =
 			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, idesquemanegociacion = %s, tipooperador = %s, ordenoperador = %s, horaentrada = %s, horasalida = %s;";
