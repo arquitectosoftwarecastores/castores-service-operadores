@@ -129,8 +129,9 @@ public class AsignacionServiceImpl implements IAsignacionService {
 		
 		lstOperadores.stream().forEach(operador -> {
 			String idUsuarioMod = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)operador[11]));
+			String idUsuario = (String) utilitiesRepository.findPersonal("idusuario", "idpersonal", String.valueOf((Integer)operador[2]));
 			
-			lstOperadoresResponse.add(new OperadoresSecundariosDTO((int)operador[12], (int)operador[0], (int)operador[1], (int)operador[2], (String)operador[14], (int)operador[3], (String)operador[4], (int)operador[5], (int)operador[6], 
+			lstOperadoresResponse.add(new OperadoresSecundariosDTO((int)operador[12], (int)operador[0], (int)operador[1], (int)operador[2], idUsuario, (String)operador[14], (int)operador[3], (String)operador[4], (int)operador[5], (int)operador[6], 
 					((Time)operador[7]).toLocalTime(), ((Time)operador[8]).toLocalTime(), (short)1, ((Date)operador[9]).toLocalDate(), ((Time)operador[10]).toLocalTime(), idUsuarioMod, operador[13] != null ? (int)operador[13] : 0));
 		});
 		

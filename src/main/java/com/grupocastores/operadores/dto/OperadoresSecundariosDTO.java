@@ -26,6 +26,7 @@ public class OperadoresSecundariosDTO {
 	private int idUnidad;
 	private int tipoUnidad;
 	private int idOperador;
+	private String idUsuario;
 	private String nombreOperador;
     private int idEsquemaPago;
     private String esquemaPago;
