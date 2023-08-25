@@ -198,7 +198,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
 						OperadoresSecundariosUnidad operadorInserted = operadoresRepository.insertOperadoresSecundarios(
 								new OperadoresSecundariosUnidad(0, operador.getIdUnidad(), operador.getTipoUnidad(), operador.getIdOperador(), operador.getIdEsquemaPago(), 
 									operador.getTipoOperador(), operador.getTipoOperador() == 1 ? operador.getOrdenOperador() : contadorAuxiliares.value++, 
-									operador.getHoraEntrada(), operador.getHoraSalida(), (short)1, today, now, idPersonalMod, 0));
+									operador.getHoraEntrada(), operador.getHoraSalida(), (short)1, today, now, idPersonalMod, operador.getIdEsquemaNegociacion()));
 						
 						if(operadorInserted != null && operadorInserted.getIdOperadoresUnidad() != 0) 
 							operador.setIdOperadoresUnidad(operadorInserted.getIdOperadoresUnidad());
