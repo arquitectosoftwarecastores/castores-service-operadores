@@ -53,7 +53,7 @@ public class AsignacionRepository extends UtilitiesRepository {
 			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, idunidad = %s, tipounidad = %s, idoperador = %s, idesquemapago = %s, tipooperador = %s, ordenoperador = %s, horaentrada = '%s', horasalida = '%s';";
 	
 	static final String queryUpdateEstatusOperadoresSecundarios =
-			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', estatus = %s;";
+			"UPDATE OPENQUERY(" + DB_23 + ", 'SELECT * FROM bitacorasinhouse.operadores_secundarios_unidad WHERE %s') SET fechamod = '%s', horamod = '%s', idpersonalmod = %s, estatus = %s;";
 	
 	/**
 	 * getEsquemasPago: Obtiene los esquemas de pago del catálogo
