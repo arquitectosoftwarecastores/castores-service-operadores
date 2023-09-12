@@ -1,5 +1,12 @@
 # castores-service-operadores
 
+## Versión: 1.0.1.0
+- __Ticket/Proyecto:__ N/A
+- __Author:__ Cynthia Fuentes Amaro
+- __Fecha:__ 12/09/2023
+- __Descripción:__ 
+  - Fix: Se agrega parámetro a query para update de operadores asignados.
+
 ## Versión: 1.0.0.1
 - __Ticket/Proyecto:__ N/A
 - __Author:__ Cynthia Fuentes Amaro
